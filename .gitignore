@@ -1,2 +1,3 @@
 App/node_modules/
-Db/
+Db/*
+Db/.DS_Store
