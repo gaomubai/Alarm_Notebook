@@ -1,0 +1,82 @@
+body {
+    background-color: #282c34e6;
+}
+
+.reminder {
+    background-color: #61dafb;
+    width: auto;
+    height: auto;
+    margin: 20px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.reminder * {
+    font: 25px/35px MicrosoftYaHei;
+    padding: 15px 20px;
+    position: relative;
+    width: auto;
+}
+
+.reminder .text {
+    overflow-wrap: break-word;
+}
+
+.reminder .time {
+    font: 20px/20px MicrosoftYaHei;
+    padding: 0px 15px;
+}
+
+.reminder .repeat {
+    font: 20px/20px MicrosoftYaHei;
+}
+
+.add_new_reminder {
+    border-radius: 32px;
+    width: 44px;
+    height: 59px;
+    font-size: 40px;
+    padding-top: 5px;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.pop_window_add_new_reminder {
+    top: 25%;
+    left: 35%;
+    border: 0px;
+    height: 325px;
+    width: 400px;
+    border-radius: 5px;
+}
+
+.pop_window_add_new_reminder select {
+    border: 2px solid;
+}
+
+.pop_window_add_new_reminder .form_title {
+    margin: -20px -10px 0px -10px;
+}
+
+.reminder_del_btn {
+    width: 120px;
+    height: 74px;
+    margin: 0px;
+    padding: 0px;
+    position: absolute;
+    z-index: 90;
+    top: 5px;
+    right: 20px;
+}
+
+.reminder_del_btn .btn {
+    background-color: inherit;
+    font: 18px/44px MicrosoftYaHei;
+    height: 44px;
+    width: 80px;
+}
+
+.reminder_del_btn .btn:hover {
+    background-color: #ffff;
+}

@@ -1,0 +1,152 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+.w {
+    margin: auto;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+/* body {
+    height: 3000px;
+} */
+
+a:visited {
+    color: black;
+}
+
+header {
+    position: sticky;
+    height: 100px;
+    width: auto;
+    background-color: #282c34;
+    top: 0px;
+    z-index: 100;
+}
+.btn {
+    display: block;
+    font: 18px/44px MicrosoftYaHei;
+    height: 44px;
+    width: 80px;
+    padding: 0px 10px;
+    margin: 27px 15px;
+    background-color: #61dafb;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.btn:hover {
+    background-color: #ffffff;
+}
+
+.login_btn {
+    float: right;
+}
+
+.sign_up_btn {
+    float: right;
+}
+
+.translate_btn {
+    float: left;
+}
+
+.signout_btn {
+    display: none;
+    float: right;
+}
+
+.main_btn {
+    display: none;
+    float: right;
+}
+
+.main {
+    background-color: #282c34e6;
+    height: 450px;
+    width: auto;
+}
+
+.pop_window_login {
+    top: 25%;
+    left: 35%;
+    border: 0px;
+    height: 230px;
+    width: 300px;
+    border-radius: 5px;
+}
+
+.pop_window_sign_up {
+    top: 25%;
+    left: 35%;
+    border: 0px;
+    height: 275px;
+    width: 300px;
+    border-radius: 5px;
+}
+
+.complex_form {
+    margin: 20px 5px 5px 5px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+.complex_form .form_title {
+    font-size: 20px;
+    font-weight: bold;
+    margin: -20px -10px 20px -10px;
+    padding: 10px 0px 10px 25px;
+    color: white;
+    background-color: #282c34;
+    border-radius: 7px 7px 0px 0px;
+}
+
+.complex_form .form_element {
+    margin-bottom: 10px;
+    font-size: 20px;
+    border-radius: 5px;
+    padding: 5px 10px 5px 10px;
+}
+
+.complex_form .btn{
+    margin: 0px;
+    width: auto;
+    height: auto;
+}
+
+.complex_form .vcode_form_element{
+    display: inline;
+    margin-bottom: 10px;
+    font-size: 20px;
+    border-radius: 5px;
+    padding: 5px 10px 5px 10px;
+    width: 175px;
+}
+
+.complex_form .vcode_btn {
+    margin: 0px;
+    display: inline;
+    font: 18px/32.5px MicrosoftYaHei;
+    width: 80px;
+    background-color: #61dafb;
+    text-align: center;
+    border-radius: 5px;
+    float: right;
+    margin-bottom: 10px;
+    border: 2px solid #282c34;
+}
+
+.complex_form .vcode_btn:hover {
+    background-color: #ffffff;
+}
