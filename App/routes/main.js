@@ -25,9 +25,9 @@ const writeToDb = function (req, res, object) {
         if (!user) return res.status(401).end("access denied");
         if (_id in reminderCach) {
             var i = 0;
-            for (; i < reminderCach[_id].length; i ++) {
+            for (; i < reminderCach[_id].length; i++) {
                 if (reminderCach[_id][i] == -1) {
-                    reminderCach[_id][i] == object;
+                    reminderCach[_id][i] = object;
                     index = i;
                     break;
                 }
@@ -44,10 +44,10 @@ const writeToDb = function (req, res, object) {
         console.log(reminderCach);
         reminder.insert({ user_id: _id, text: text, repeat: repeat, datetime: datetime, index: index}, function (err) {
             if (err) return res.status(500).end(err);
-            var updateingValue = user["numOfReminder"] + 1;
-            users.update({ _id: req.session._id }, { $set: { "numOfReminder": updateingValue } }, { multi: false }, function (err, num) { 
-                if (err) return res.status(500).end(err);
-            });
+            // var updateingValue = user["numOfReminder"] + 1;
+            // users.update({ _id: req.session._id }, { $set: { "numOfReminder": updateingValue } }, { multi: false }, function (err, num) { 
+            //     if (err) return res.status(500).end(err);
+            // });
             console.log("Reminder adding success");
         });
     });
@@ -81,7 +81,20 @@ router.post('/reminder/', isAuthenticated, function (req, res, next) {
             console.log("text: " + text);
             console.log(new Date());
         });
-        writeToDb(req, res, j);
+        const users = req.app.locals.users;
+        const _id = req.session._id;
+        users.findOne({ _id: _id }, function (err, user) {
+            if (err) return res.status(500).end(err);
+            if (!user) return res.status(401).end("access denied");
+            reminder.insert({ user_id: _id, text: text, repeat: repeat, datetime: datetime, index: -1}, function (err) {
+                if (err) return res.status(500).end(err);
+                // var updateingValue = user["numOfReminder"] + 1;
+                // users.update({ _id: req.session._id }, { $set: { "numOfReminder": updateingValue } }, { multi: false }, function (err, num) { 
+                //     if (err) return res.status(500).end(err);
+                // });
+                console.log("Reminder adding success");
+            });
+        });
     }
     else if (repeat == 'daily') {
         var rule = new schedule.RecurrenceRule()
@@ -134,8 +147,11 @@ router.delete("/reminder/:id/", isAuthenticated, function (req, res, next) {
         if (err) return res.status(500).end(err);
         if (!doc) return res.status(404).end("Reminder id #" + req.params.id + " does not exists");
         if (doc.user_id !== req.session._id) return res.status(403).end("forbidden");
-        let i = doc.index;
-        reminderCach[req.session._id][i] = -1;
+        var i = doc.index;
+        if (i != -1) {
+            reminderCach[req.session._id][i] = -1;
+            console.log(reminderCach);
+        }
         reminder.remove({ _id: req.params.id }, { multi: false }, function (err, num) { 
             if (err) return res.status(500).end(err);
         });
