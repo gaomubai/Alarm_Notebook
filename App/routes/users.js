@@ -1,4 +1,3 @@
-const nodemailer = require('nodemailer');
 const express = require('express');
 const router = express.Router();
 const redis = require('redis');
@@ -17,21 +16,21 @@ client.on('error', err => console.log('Redis Client Error', err));
 
 client.connect();
 
-var reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+const reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
 
-const mailconfig = {
-  host: 'smtp.163.com',
-  port: 465,
-  auth: {
-    user:'alarm_notebook@163.com',
-    pass: 'FULUTHMYVXMORRKW'
-  }
-};
+// const mailconfig = {
+//   host: 'smtp.163.com',
+//   port: 465,
+//   auth: {
+//     user:'alarm_notebook@163.com',
+//     pass: 'FULUTHMYVXMORRKW'
+//   }
+// };
 
-const transporter = nodemailer.createTransport(mailconfig);
+// const transporter = nodemailer.createTransport(mailconfig);
 
-var send_verify = function (mail) {
-  transporter.sendMail(mail, function (err, info) {
+var send_verify = function (req, mail) {
+  req.app.locals.transporter.sendMail(mail, function (err, info) {
     if (err) {
       console.log(err);
     }
@@ -52,14 +51,15 @@ router.post('/send_verify_code/', [check('email').isEmail().trim().escape()], fu
   }
   var code = Math.random().toFixed(6).slice(-6);
   client.set(email, code);
-  client.expire(email,300);
+  client.expire(email, 300);
+  console.log(req.app.locals.mailconfig);
   var mail_content = {
-    from: '<' + mailconfig.auth.user + '>',
+    from: '<' + req.app.locals.mailconfig.auth.user + '>',
     subject: 'code',
     to: email,
     text: code
   };
-  send_verify(mail_content);
+  send_verify(req, mail_content);
 });
 
 /* Sign up. */

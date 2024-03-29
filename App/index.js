@@ -4,6 +4,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 const Datastore = require('nedb');
+const nodemailer = require('nodemailer');
 
 const app = express()
 const port = 3000
@@ -36,8 +37,20 @@ app.engine('.html', require('ejs').__express);
 app.set('view engine', 'html');
 
 const users = new Datastore({ filename: '../db/users.db', autoload: true });
-
 app.locals.users = users;
+
+const mailconfig = {
+  host: 'smtp.163.com',
+  port: 465,
+  auth: {
+    user:'alarm_notebook@163.com',
+    pass: 'FULUTHMYVXMORRKW'
+  }
+};
+app.locals.mailconfig = mailconfig;
+
+const transporter = nodemailer.createTransport(mailconfig);
+app.locals.transporter = transporter;
 
 const usersRouter = require('./routes/users');
 const mainRouter = require('./routes/main');

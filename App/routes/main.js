@@ -4,6 +4,8 @@ const Datastore = require('nedb');
 
 const router = express.Router();
 
+const reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+
 const reminder = new Datastore({ filename: '../db/reminder.db', autoload: true });
 
 var reminderCach = {};
@@ -13,43 +15,52 @@ const isAuthenticated = function (req, res, next) {
     next();
 };
 
-const writeToDb = function (req, res, object) {
-    const text = req.body.text;
-    const repeat = req.body.repeat;
-    const datetime = new Date(req.body.datetime);
-    const _id = req.session._id;
-    var index = -1;
-    const users = req.app.locals.users;
-    users.findOne({ _id: req.session._id }, function (err, user) {
-        if (err) return res.status(500).end(err);
-        if (!user) return res.status(401).end("access denied");
-        if (_id in reminderCach) {
-            var i = 0;
-            for (; i < reminderCach[_id].length; i++) {
-                if (reminderCach[_id][i] == -1) {
-                    reminderCach[_id][i] = object;
-                    index = i;
-                    break;
-                }
-            }
-            if (i >= reminderCach[_id].length) {
-                index = reminderCach[_id].length
-                reminderCach[_id].push(object);
-            }
+const sendNotification = function (user, req, res) {
+    var email = user.email;
+    if (email.match(reg) == null){
+        return res.status(400).end('Please entre the correct email');
+    }
+    var mail_content = {
+        from: '<' + req.app.locals.mailconfig.auth.user + '>',
+        subject: 'Notification From Alarm Notebook',
+        to: email,
+        text: req.body.text
+    };
+    req.app.locals.transporter.sendMail(mail_content, function (err, info) {
+        if (err) {
+            console.log(err);
         }
         else {
-            index = 0;
-            reminderCach[_id] = [object];
+            console.log("mail sent" + info.response);
         }
-        console.log(reminderCach);
-        reminder.insert({ user_id: _id, text: text, repeat: repeat, datetime: datetime, index: index}, function (err) {
-            if (err) return res.status(500).end(err);
-            // var updateingValue = user["numOfReminder"] + 1;
-            // users.update({ _id: req.session._id }, { $set: { "numOfReminder": updateingValue } }, { multi: false }, function (err, num) { 
-            //     if (err) return res.status(500).end(err);
-            // });
-            console.log("Reminder adding success");
-        });
+    })
+}
+
+const writeToDb = function (text, repeat, datetime, res, user, object) {
+    const _id = user._id;
+    var index = -1;
+    if (_id in reminderCach) {
+        var i = 0;
+        for (; i < reminderCach[_id].length; i++) {
+            if (reminderCach[_id][i] == -1) {
+                reminderCach[_id][i] = object;
+                index = i;
+                break;
+            }
+        }
+        if (i >= reminderCach[_id].length) {
+            index = reminderCach[_id].length
+            reminderCach[_id].push(object);
+        }
+    }
+    else {
+        index = 0;
+        reminderCach[_id] = [object];
+    }
+    console.log(reminderCach);
+    reminder.insert({ user_id: _id, text: text, repeat: repeat, datetime: datetime, index: index }, function (err) {
+        if (err) return res.status(500).end(err);
+        console.log("Reminder adding success");
     });
 }
 
@@ -75,62 +86,57 @@ router.post('/reminder/', isAuthenticated, function (req, res, next) {
     const text = req.body.text;
     const repeat = req.body.repeat;
     const datetime = new Date(req.body.datetime);
-    
-    if (repeat == 'none') {
-        var j = schedule.scheduleJob(datetime, function () {
-            console.log("text: " + text);
-            console.log(new Date());
-        });
-        const users = req.app.locals.users;
-        const _id = req.session._id;
-        users.findOne({ _id: _id }, function (err, user) {
-            if (err) return res.status(500).end(err);
-            if (!user) return res.status(401).end("access denied");
+    const users = req.app.locals.users;
+    const _id = req.session._id;
+    users.findOne({ _id: _id }, function (err, user) {
+        if (err) return res.status(500).end(err);
+        if (!user) return res.status(401).end("access denied");
+        if (repeat == 'none') {
+            var j = schedule.scheduleJob(datetime, function () {
+                console.log("text: " + text);
+                sendNotification(user, req, res);
+            });
             reminder.insert({ user_id: _id, text: text, repeat: repeat, datetime: datetime, index: -1}, function (err) {
                 if (err) return res.status(500).end(err);
-                // var updateingValue = user["numOfReminder"] + 1;
-                // users.update({ _id: req.session._id }, { $set: { "numOfReminder": updateingValue } }, { multi: false }, function (err, num) { 
-                //     if (err) return res.status(500).end(err);
-                // });
                 console.log("Reminder adding success");
             });
-        });
-    }
-    else if (repeat == 'daily') {
-        var rule = new schedule.RecurrenceRule()
-        rule.hour = datetime.getHours();
-        rule.minute = datetime.getMinutes();
-        var j = schedule.scheduleJob(rule, function () {
-            console.log("text: " + text);
-            console.log(new Date());
-        });
-        writeToDb(req, res, j);
-    }
-    else if (repeat == 'weekly') {
-        var rule = new schedule.RecurrenceRule()
-        rule.hour = datetime.getHours();
-        rule.minute = datetime.getMinutes();
-        rule.dayOfWeek = datetime.getDay();
-        var j = schedule.scheduleJob(rule, function () {
-            console.log("text: " + text);
-            console.log(new Date());
-        });
-        writeToDb(req, res, j);
-    }
-    else if (repeat == 'monthly') {
-        var rule = new schedule.RecurrenceRule()
-        rule.hour = datetime.getHours();
-        rule.minute = datetime.getMinutes();
-        rule.date = datetime.getDate();
-        var j = schedule.scheduleJob(rule, function () {
-            console.log("text: " + text);
-            console.log(new Date());
-        });
-        writeToDb(req, res, j);
-    }
-    else {
-        return res.status(300).end('Repeation does not correct');
-    }
+        }
+        else if (repeat == 'daily') {
+            var rule = new schedule.RecurrenceRule()
+            rule.hour = datetime.getHours();
+            rule.minute = datetime.getMinutes();
+            var j = schedule.scheduleJob(rule, function () {
+                console.log("text: " + text);
+                sendNotification(user, req, res);
+            });
+            writeToDb(text, repeat, datetime, res, user, j);
+        }
+        else if (repeat == 'weekly') {
+            var rule = new schedule.RecurrenceRule()
+            rule.hour = datetime.getHours();
+            rule.minute = datetime.getMinutes();
+            rule.dayOfWeek = datetime.getDay();
+            var j = schedule.scheduleJob(rule, function () {
+                console.log("text: " + text);
+                sendNotification(user, req, res);
+            });
+            writeToDb(text, repeat, datetime, res, user, j);
+        }
+        else if (repeat == 'monthly') {
+            var rule = new schedule.RecurrenceRule()
+            rule.hour = datetime.getHours();
+            rule.minute = datetime.getMinutes();
+            rule.date = datetime.getDate();
+            var j = schedule.scheduleJob(rule, function () {
+                console.log("text: " + text);
+                sendNotification(user, req, res);
+            });
+            writeToDb(text, repeat, datetime, res, user, j);
+        }
+        else {
+            return res.status(300).end('Repeation does not correct');
+        }
+    });
 });
 
 /* Get reminder. */
@@ -149,6 +155,7 @@ router.delete("/reminder/:id/", isAuthenticated, function (req, res, next) {
         if (doc.user_id !== req.session._id) return res.status(403).end("forbidden");
         var i = doc.index;
         if (i != -1) {
+            reminderCach[req.session._id][i].cancel();
             reminderCach[req.session._id][i] = -1;
             console.log(reminderCach);
         }
