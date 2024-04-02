@@ -40,11 +40,11 @@ const users = new Datastore({ filename: '../db/users.db', autoload: true });
 app.locals.users = users;
 
 const mailconfig = {
-  host: 'smtp.163.com',
-  port: 465,
+  host: '',
+  port: ,
   auth: {
-    user:'alarm_notebook@163.com',
-    pass: 'FULUTHMYVXMORRKW'
+    user:'',
+    pass: ''
   }
 };
 app.locals.mailconfig = mailconfig;
