@@ -1,6 +1,6 @@
 const express = require('express')
 const cookie = require('cookie');
-const session = require('express-session');
+// const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
 const Datastore = require('nedb');
@@ -13,17 +13,17 @@ app.use(express.static('static'));
 
 app.use(bodyParser.json());
 
-app.use(session({
-  secret: '123-456-7890',
-  resave: false,
-  saveUninitialized: true,
-  // cookie: {
-  //   httpOnly: false,
-  //   secure: false,
-  //   sameSite: false,
-  //   maxAge: 60 * 60 * 24
-  // }
-}));
+// app.use(session({
+//   secret: '123-456-7890',
+//   resave: false,
+//   saveUninitialized: true,
+//   // cookie: {
+//   //   httpOnly: false,
+//   //   secure: false,
+//   //   sameSite: false,
+//   //   maxAge: 60 * 60 * 24
+//   // }
+// }));
 
 app.use(function (req, res, next){
     let cookies = cookie.parse(req.headers.cookie || '');

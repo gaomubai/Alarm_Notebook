@@ -3,7 +3,7 @@ const router = express.Router();
 const redis = require('redis');
 const { check } = require('express-validator');
 const bcrypt = require('bcrypt');
-const cookie = require('cookie');
+// const cookie = require('cookie');
 
 const client = redis.createClient({
   socket: {
@@ -119,12 +119,12 @@ router.post('/login/', [check('email').isEmail().trim().escape(), check('passwor
     bcrypt.compare(password, user.hash, function (err, valid) {
       if (err) return res.status(500).end(err);
       if (!valid) return res.status(401).end("access denied");
-      // start a session
-      req.session._id = user._id;
-      res.setHeader('Set-Cookie', cookie.serialize('_id', user._id, {
-        path : '/', 
-        maxAge: 60 * 60 * 24 // 1 day in number of seconds
-      }));
+      // // start a session
+      // req.session._id = user._id;
+      // res.setHeader('Set-Cookie', cookie.serialize('_id', user._id, {
+      //   path : '/', 
+      //   // maxAge: 60 * 60 * 24 // 1 day in number of seconds
+      // }));
       console.log(user);
       return res.json(email);
     });
@@ -133,11 +133,11 @@ router.post('/login/', [check('email').isEmail().trim().escape(), check('passwor
 
 /* Signout */
 router.get('/signout/', function (req, res, next) {
-  req.session.destroy();
-  res.setHeader('Set-Cookie', cookie.serialize('_id', '', {
-          path : '/', 
-          maxAge: 60 * 60 * 24 // 1 week in number of seconds
-    }));
+  // req.session.destroy();
+  // res.setHeader('Set-Cookie', cookie.serialize('_id', '', {
+  //         path : '/', 
+  //         maxAge: 60 * 60 * 24 // 1 week in number of seconds
+  //   }));
   return res.redirect("/");
 });
 

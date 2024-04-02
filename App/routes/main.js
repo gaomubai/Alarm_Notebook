@@ -11,7 +11,7 @@ const reminder = new Datastore({ filename: '../db/reminder.db', autoload: true }
 var reminderCach = {};
 
 const isAuthenticated = function (req, res, next) {
-    if (!req.session._id) return res.status(401).end("access denied");
+    // if (!req.session._id) return res.status(401).end("access denied");
     next();
 };
 
@@ -87,7 +87,7 @@ router.post('/reminder/', isAuthenticated, function (req, res, next) {
     const repeat = req.body.repeat;
     const datetime = new Date(req.body.datetime);
     const users = req.app.locals.users;
-    const _id = req.session._id;
+    // const _id = req.session._id;
     users.findOne({ _id: _id }, function (err, user) {
         if (err) return res.status(500).end(err);
         if (!user) return res.status(401).end("access denied");
@@ -141,7 +141,7 @@ router.post('/reminder/', isAuthenticated, function (req, res, next) {
 
 /* Get reminder. */
 router.get("/reminder/", isAuthenticated, function (req, res, next) { 
-    reminder.find({ user_id: req.session._id }).sort({ datetime: -1 }).exec(function (err, docs) {
+    // reminder.find({ user_id: req.session._id }).sort({ datetime: -1 }).exec(function (err, docs) {
         if (err) return res.status(500).end(err);
         return res.json(docs);
     });
@@ -152,11 +152,11 @@ router.delete("/reminder/:id/", isAuthenticated, function (req, res, next) {
     reminder.findOne({ _id: req.params.id }, function (err, doc) { 
         if (err) return res.status(500).end(err);
         if (!doc) return res.status(404).end("Reminder id #" + req.params.id + " does not exists");
-        if (doc.user_id !== req.session._id) return res.status(403).end("forbidden");
+        // if (doc.user_id !== req.session._id) return res.status(403).end("forbidden");
         var i = doc.index;
         if (i != -1) {
-            reminderCach[req.session._id][i].cancel();
-            reminderCach[req.session._id][i] = -1;
+            // reminderCach[req.session._id][i].cancel();
+            // reminderCach[req.session._id][i] = -1;
             console.log(reminderCach);
         }
         reminder.remove({ _id: req.params.id }, { multi: false }, function (err, num) { 
